@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LedgerPro — Invoice, Quotation & Proforma Studio</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand"><div class="brand-mark">LP</div> LedgerPro Studio</div>
+    <div class="top-actions">
+      <button class="btn dark" onclick="newDocument()">＋ New</button>
+      <button class="btn dark" onclick="saveDraft()">Save Draft</button>
+      <button class="btn primary" onclick="printDoc()">Print / PDF</button>
+    </div>
+  </header>
+
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="nav-title">Documents</div>
+      <button class="nav-btn active" data-mode="invoice" onclick="switchMode('invoice')"><span class="nav-icon">▣</span><span>Invoices</span></button>
+      <button class="nav-btn" data-mode="quote" onclick="switchMode('quote')"><span class="nav-icon">◇</span><span>Quotations</span></button>
+      <button class="nav-btn" data-mode="proforma" onclick="switchMode('proforma')"><span class="nav-icon">◫</span><span>Proforma</span></button>
+
+      <div class="nav-title">Workspace</div>
+      <button class="nav-btn" onclick="openSaved()"><span class="nav-icon">▤</span><span>Saved Drafts</span></button>
+      <button class="nav-btn" onclick="openSignature()"><span class="nav-icon">✎</span><span>Signature & Stamp</span></button>
+      <button class="nav-btn" onclick="openSettings()"><span class="nav-icon">⚙</span><span>Document Settings</span></button>
+    </aside>
+
+    <main class="content">
+      <div class="page-head">
+        <div>
+          <h1 id="pageTitle">Invoice Studio</h1>
+          <p>Create professional documents, calculate totals instantly and prepare them for printing or PDF.</p>
+        </div>
+        <div class="head-actions">
+          <button class="btn" onclick="duplicateDoc()">Duplicate</button>
+          <button class="btn success" onclick="saveDraft()">✓ Save</button>
+        </div>
+      </div>
+
+      <div class="mode-tabs">
+        <button class="mode-tab active" data-mode="invoice" onclick="switchMode('invoice')">Invoice</button>
+        <button class="mode-tab" data-mode="quote" onclick="switchMode('quote')">Quotation</button>
+        <button class="mode-tab" data-mode="proforma" onclick="switchMode('proforma')">Proforma</button>
+      </div>
+
+      <div class="workspace">
+        <section class="panel editor">
+          <div class="mini-cards">
+            <div class="stat"><small>Document</small><strong id="statType">Invoice</strong></div>
+            <div class="stat"><small>Items</small><strong id="statItems">1</strong></div>
+            <div class="stat"><small>Total</small><strong id="statTotal">$0.00</strong></div>
+          </div>
+
+          <div class="section">
+            <div class="panel-title">
+              <h3>Business information</h3>
+              <button class="btn small" onclick="document.getElementById('logoInput').click()">Upload logo</button>
+            </div>
+            <input id="logoInput" type="file" accept="image/*" class="hidden" onchange="loadLogo(event)">
+            <div class="grid">
+              <div class="field"><label>Business name</label><input id="businessName" value="Your Business Name"></div>
+              <div class="field"><label>Document number</label><input id="docNo" value="INV-0001"></div>
+              <div class="field"><label>Business email</label><input id="businessEmail" value="hello@yourbusiness.com"></div>
+              <div class="field"><label>Phone</label><input id="businessPhone" value="+000 000 000 000"></div>
+              <div class="field"><label>Business address</label><textarea id="businessAddress">Business Street, City, Country</textarea></div>
+              <div class="field"><label>Currency</label><select id="currency"><option value="$">USD ($)</option><option value="AED">AED</option><option value="€">EUR (€)</option><option value="£">GBP (£)</option><option value="UGX">UGX</option><option value="KES">KES</option></select></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="panel-title"><h3>Customer & dates</h3></div>
+            <div class="grid">
+              <div class="field"><label>Customer / Company</label><input id="customerName" value="Customer Name"></div>
+              <div class="field"><label>Customer email</label><input id="customerEmail" value="customer@example.com"></div>
+              <div class="field"><label>Billing address</label><textarea id="customerAddress">Customer address</textarea></div>
+              <div class="field"><label>Reference / PO number</label><input id="reference" placeholder="Optional"></div>
+              <div class="field"><label>Issue date</label><input id="issueDate" type="date"></div>
+              <div class="field"><label id="dueLabel">Due date</label><input id="dueDate" type="date"></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="panel-title"><h3>Line items</h3><button class="btn small primary" onclick="addItem()">＋ Add item</button></div>
+            <div class="items">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Description</th>
+                    <th style="width:85px">Qty</th>
+                    <th style="width:120px">Rate</th>
+                    <th style="width:120px">Tax %</th>
+                    <th style="width:130px">Amount</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="itemsBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="grid three">
+              <div class="field"><label>Discount %</label><input id="discount" type="number" min="0" step=".01" value="0"></div>
+              <div class="field"><label>Shipping</label><input id="shipping" type="number" min="0" step=".01" value="0"></div>
+              <div class="field"><label>Payment terms</label><input id="terms" value="Due within 30 days"></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="panel-title"><h3>Notes & legal</h3></div>
+            <div class="grid">
+              <div class="field"><label>Customer notes</label><textarea id="notes">Thank you for your business.</textarea></div>
+              <div class="field"><label>Terms & conditions</label><textarea id="legal">Payment is due according to the terms stated above. All prices are subject to applicable taxes.</textarea></div>
+            </div>
+          </div>
+
+          <div class="section">
+            <div class="panel-title"><h3>Signatories</h3><button class="btn small" onclick="openSignature()">Manage signature & stamp</button></div>
+            <div class="grid">
+              <div class="field"><label>Prepared / Issued by</label><input id="preparedBy" value="Authorized Signatory"></div>
+              <div class="field"><label>Approved by</label><input id="approvedBy" value="Finance Manager"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel preview-wrap">
+          <div class="preview-toolbar">
+            <strong>Live document preview</strong>
+            <div>
+              <button class="btn small" onclick="printDoc()">🖨 Print / PDF</button>
+              <button class="btn small" onclick="downloadHTML()">⇩ HTML</button>
+            </div>
+          </div>
+          <div class="preview"><div class="paper" id="paper"></div></div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <div class="drawer" id="modal"><div class="modal" id="modalBody"></div></div>
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
